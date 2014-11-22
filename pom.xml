@@ -27,7 +27,6 @@
     <name>JdAdapter Web App</name>
 
     <properties>
-        <eclipse.projectDir>D:\Coding\WorkSpace\</eclipse.projectDir>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <app.version>${project.version}</app.version>
@@ -78,7 +77,7 @@
         <dependency>
             <groupId>de.perdoctus</groupId>
             <artifactId>synolib</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -97,12 +96,6 @@
             <artifactId>winstone</artifactId>
             <version>0.9.10</version>
             <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.dmurph</groupId>
-            <artifactId>JGoogleAnalyticsTracker</artifactId>
-            <version>1.2.0</version>
         </dependency>
 
     </dependencies>

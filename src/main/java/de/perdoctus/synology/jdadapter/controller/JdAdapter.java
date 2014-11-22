@@ -19,25 +19,6 @@
 
 package de.perdoctus.synology.jdadapter.controller;
 
-import com.dmurph.tracking.JGoogleAnalyticsTracker;
-import de.perdoctus.synolib.DownloadRedirectorClient;
-import de.perdoctus.synolib.exceptions.LoginException;
-import de.perdoctus.synolib.exceptions.SynoException;
-import de.perdoctus.synology.jdadapter.utils.Decrypter;
-import org.apache.log4j.Logger;
-import org.apache.log4j.lf5.util.StreamUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import javax.annotation.PostConstruct;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.PathParam;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -48,6 +29,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.PathParam;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.lf5.util.StreamUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import de.perdoctus.synolib.DownloadRedirectorClient;
+import de.perdoctus.synolib.exceptions.LoginException;
+import de.perdoctus.synolib.exceptions.SynoException;
+import de.perdoctus.synology.jdadapter.utils.Decrypter;
+
 /**
  * @author Christoph Giesche
  */
@@ -56,7 +56,6 @@ public class JdAdapter {
 
 	private static final Logger LOG = Logger.getLogger(JdAdapter.class);
 	private static final Map<String, String> URI_REPLACEMENT_LIST = new HashMap<String, String>();
-	private static final String ANALYTICS_EVENT_CATEGORY = "JdAdapter";
 
 	static {
 		URI_REPLACEMENT_LIST.put("^http://share-online.biz/dl/", "http://www.share-online.biz/dl/");
@@ -68,15 +67,7 @@ public class JdAdapter {
 	private DownloadRedirectorClient drClient;
 
 	@Autowired
-	private JGoogleAnalyticsTracker analyticsTracker;
-
-	@Autowired
 	private String appVersion;
-
-	@PostConstruct
-	public void postConstruct() {
-		analyticsTracker.trackEvent(ANALYTICS_EVENT_CATEGORY, "Startup Finished", appVersion);
-	}
 
 	@RequestMapping(value = "/jdcheck.js", method = RequestMethod.GET)
 	public void returnJdScript(final HttpServletResponse resp) throws IOException {
@@ -118,8 +109,8 @@ public class JdAdapter {
 			for (URI target : fixedTargets) {
 				drClient.addDownloadUrl(target);
 			}
+			
 			resp.setStatus(HttpServletResponse.SC_OK);
-			analyticsTracker.trackEvent(ANALYTICS_EVENT_CATEGORY, "Classic Request", "added targets", targets.size());
 
 		} catch (ScriptException ex) {
 			LOG.error(ex.getMessage(), ex);
