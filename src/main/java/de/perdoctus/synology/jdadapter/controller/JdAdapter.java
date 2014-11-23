@@ -36,8 +36,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.PathParam;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.lf5.util.StreamUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,98 +55,103 @@ import de.perdoctus.synology.jdadapter.utils.Decrypter;
 @Controller
 public class JdAdapter {
 
-	private static final Logger LOG = Logger.getLogger(JdAdapter.class);
-	private static final Map<String, String> URI_REPLACEMENT_LIST = new HashMap<String, String>();
+    private static final Logger LOG = LogManager.getLogger(JdAdapter.class);
+    private static final Map<String, String> URI_REPLACEMENT_LIST = new HashMap<String, String>();
 
-	static {
-		URI_REPLACEMENT_LIST.put("^http://share-online.biz/dl/", "http://www.share-online.biz/dl/");
-		URI_REPLACEMENT_LIST.put("^http://share-online.biz/download.php\\?id=", "http://www.share-online.biz/dl/");
-		URI_REPLACEMENT_LIST.put("^http://www.share-online.biz/download.php\\?id=", "http://www.share-online.biz/dl/");
-	}
+    static {
+        URI_REPLACEMENT_LIST.put("^http://share-online.biz/dl/", "http://www.share-online.biz/dl/");
+        URI_REPLACEMENT_LIST.put("^http://share-online.biz/download.php\\?id=", "http://www.share-online.biz/dl/");
+        URI_REPLACEMENT_LIST.put("^http://www.share-online.biz/download.php\\?id=", "http://www.share-online.biz/dl/");
+    }
 
-	@Autowired
-	private DownloadRedirectorClient drClient;
+    @Autowired
+    private DownloadRedirectorClient drClient;
 
-	@Autowired
-	private String appVersion;
+    @Autowired
+    private String appVersion;
 
-	@RequestMapping(value = "/jdcheck.js", method = RequestMethod.GET)
-	public void returnJdScript(final HttpServletResponse resp) throws IOException {
-		LOG.info("Got Request from 'classic' click'n'load button.");
-		resp.setStatus(200);
-		resp.getWriter().println("jdownloader=true");
-	}
+    @RequestMapping(value = "/jdcheck.js", method = RequestMethod.GET)
+    public void returnJdScript(final HttpServletResponse resp) throws IOException {
+        LOG.info("Got Request from 'classic' click'n'load button.");
+        resp.setStatus(200);
+        resp.getWriter().println("jdownloader=true");
+    }
 
-	@RequestMapping(value = "/crossdomain.xml", method = RequestMethod.GET)
-	public void allowCrossdomain(final HttpServletResponse resp) throws IOException {
-		final OutputStream response = resp.getOutputStream();
-		final InputStream input = getClass().getResourceAsStream("/crossdomain.xml");
-		StreamUtils.copyThenClose(input, response);
-	}
+    @RequestMapping(value = "/crossdomain.xml", method = RequestMethod.GET)
+    public void allowCrossdomain(final HttpServletResponse resp) throws IOException {
+        final OutputStream response = resp.getOutputStream();
+        final InputStream input = getClass().getResourceAsStream("/crossdomain.xml");
+        IOUtils.copy(input, response);
+        IOUtils.closeQuietly(input);
+        IOUtils.closeQuietly(response);
+    }
 
-	@RequestMapping(value = "/flash", method = RequestMethod.GET)
-	public void enableFlashButton(final HttpServletResponse resp) throws IOException {
-		LOG.info("Got Request from flash click'n'load button.");
-		resp.setStatus(HttpServletResponse.SC_OK);
-		resp.getWriter().print("JDownloader");
-	}
+    @RequestMapping(value = "/flash", method = RequestMethod.GET)
+    public void enableFlashButton(final HttpServletResponse resp) throws IOException {
+        LOG.info("Got Request from flash click'n'load button.");
+        resp.setStatus(HttpServletResponse.SC_OK);
+        resp.getWriter().print("JDownloader");
+    }
 
-	@RequestMapping(value = "/flash/addcrypted2", method = RequestMethod.POST)
-	public void addDownloads(@FormParam("jk") final String jk, @FormParam("crypted") final String crypted, @PathParam("source") final String source, @PathParam("jd") final String jd, final HttpServletResponse resp) throws IOException {
-		LOG.info("Got download request! (Assuming NON-DLC.)");
-		handleClassicRequest(jk, crypted, resp);
-		LOG.info("Finished.");
-	}
+    @RequestMapping(value = "/flash/addcrypted2", method = RequestMethod.POST)
+    public void addDownloads(@FormParam("jk") final String jk, @FormParam("crypted") final String crypted,
+        @PathParam("source") final String source, @PathParam("jd") final String jd, final HttpServletResponse resp)
+        throws IOException {
+        LOG.info("Got download request! (Assuming NON-DLC.)");
+        handleClassicRequest(jk, crypted, resp);
+        LOG.info("Finished.");
+    }
 
-	public void handleClassicRequest(final String jk, final String crypted, final HttpServletResponse resp) throws IOException {
-		LOG.debug("Configuration: " + drClient.toString());
+    public void handleClassicRequest(final String jk, final String crypted, final HttpServletResponse resp)
+        throws IOException {
+        LOG.debug("Configuration: " + drClient.toString());
 
-		try {
-			final String key = extractKey(jk);
-			final List<URI> targets = Decrypter.decryptDownloadUri(crypted, key);
-			final List<URI> fixedTargets = fixURIs(targets);
+        try {
+            final String key = extractKey(jk);
+            final List<URI> targets = Decrypter.decryptDownloadUri(crypted, key);
+            final List<URI> fixedTargets = fixURIs(targets);
 
-			LOG.debug("Sending download URLs to Synology NAS. Number of URIs: " + targets.size());
-			for (URI target : fixedTargets) {
-				drClient.addDownloadUrl(target);
-			}
-			
-			resp.setStatus(HttpServletResponse.SC_OK);
+            LOG.debug("Sending download URLs to Synology NAS. Number of URIs: " + targets.size());
+            for (URI target : fixedTargets) {
+                drClient.addDownloadUrl(target);
+            }
 
-		} catch (ScriptException ex) {
-			LOG.error(ex.getMessage(), ex);
-			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Failed to evaluate script:\n" + ex.getMessage());
+            resp.setStatus(HttpServletResponse.SC_OK);
 
-		} catch (SynoException ex) {
-			LOG.error(ex.getMessage(), ex);
-			if (ex instanceof LoginException) {
-				resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
-			} else {
-				resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
-			}
+        } catch (ScriptException ex) {
+            LOG.error(ex.getMessage(), ex);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Failed to evaluate script:\n" + ex.getMessage());
 
-		} catch (URISyntaxException ex) {
-			LOG.error("Decrypted URL seems to be corrupt.", ex);
-			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
-		}
-	}
+        } catch (SynoException ex) {
+            LOG.error(ex.getMessage(), ex);
+            if (ex instanceof LoginException) {
+                resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
+            } else {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
+            }
 
-	private String extractKey(String jk) throws ScriptException {
-		final ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
-		final ScriptEngine scriptEngine = scriptEngineManager.getEngineByMimeType("text/javascript");
-		scriptEngine.eval(jk + "\nvar result = f();");
-		return scriptEngine.get("result").toString();
-	}
+        } catch (URISyntaxException ex) {
+            LOG.error("Decrypted URL seems to be corrupt.", ex);
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
+    }
 
-	private List<URI> fixURIs(final List<URI> srcURIs) throws URISyntaxException {
-		final List<URI> resultURIs = new ArrayList<URI>(srcURIs.size());
-		for (final URI srcURI : srcURIs) {
-			String srcURIStr = srcURI.toASCIIString();
-			for (final String findPattern : URI_REPLACEMENT_LIST.keySet()) {
-				srcURIStr = srcURIStr.replaceAll(findPattern, URI_REPLACEMENT_LIST.get(findPattern));
-			}
-			resultURIs.add(new URI(srcURIStr));
-		}
-		return resultURIs;
-	}
+    private String extractKey(String jk) throws ScriptException {
+        final ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+        final ScriptEngine scriptEngine = scriptEngineManager.getEngineByMimeType("text/javascript");
+        scriptEngine.eval(jk + "\nvar result = f();");
+        return scriptEngine.get("result").toString();
+    }
+
+    private List<URI> fixURIs(final List<URI> srcURIs) throws URISyntaxException {
+        final List<URI> resultURIs = new ArrayList<URI>(srcURIs.size());
+        for (final URI srcURI : srcURIs) {
+            String srcURIStr = srcURI.toASCIIString();
+            for (final String findPattern : URI_REPLACEMENT_LIST.keySet()) {
+                srcURIStr = srcURIStr.replaceAll(findPattern, URI_REPLACEMENT_LIST.get(findPattern));
+            }
+            resultURIs.add(new URI(srcURIStr));
+        }
+        return resultURIs;
+    }
 }

@@ -19,7 +19,8 @@
 
 package de.perdoctus.synology.jdadapter.utils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sun.misc.BASE64Decoder;
 
 import javax.crypto.Cipher;
@@ -36,18 +37,19 @@ import java.util.List;
  * @author Christoph Giesche
  */
 public class Decrypter {
-    
-	public static Logger LOG = Logger.getLogger(Decrypter.class);
-	
-    public static List<URI> decryptDownloadUri(final String hexContent, final String hexKey) throws URISyntaxException, IOException {
+
+    public static Logger LOG = LogManager.getLogger(Decrypter.class);
+
+    public static List<URI> decryptDownloadUri(final String hexContent, final String hexKey) throws URISyntaxException,
+        IOException {
         List<URI> resultURLs = new ArrayList<URI>();
-        
+
         BASE64Decoder dec = new BASE64Decoder();
         byte[] content = dec.decodeBuffer(hexContent);
         byte[] key = HexFormatter.hexToByteArray(hexKey);
-        
+
         String[] results = decrypt(content, key).split("\n");
-        
+
         for (String result : results) {
             result = result.trim();
             if (result.trim().length() > 0) {
@@ -55,13 +57,13 @@ public class Decrypter {
                 resultURLs.add(resultURL);
             }
         }
-        
+
         return resultURLs;
     }
 
     public static String decrypt(byte[] b, byte[] key) {
         String result = null;
-        
+
         try {
             Cipher cipher;
             IvParameterSpec ivSpec = new IvParameterSpec(key);
