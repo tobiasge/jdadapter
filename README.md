@@ -10,7 +10,4 @@ Requirements
 + Java Installation (minimum JRE 1.7)
 + A Synology NAS with configured DownloadStation
 
-Download
---------
-
-[Download latest version](http://nexus.perdoctus.de/service/local/artifact/maven/content?g=de.perdoctus&a=jdadapter&v=RELEASE&r=releases&c=Release%2BPackage&p=zip "Download latest version")
+[![Dependency Status](https://www.versioneye.com/user/projects/55323d5610e7141211001087/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55323d5610e7141211001087)
