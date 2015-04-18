@@ -6,4 +6,4 @@ set password=password
 set synoUri=http://192.168.178.30:5000
 REM ################################################################################
 
-java -DsynoUri="%synoUri%" -Dpassword="%password%" -Dusername="%username%" -jar winstone-0.9.10.jar --httpPort=9666 --warfile=JdAdapter.war
+java -DsynoUri="%synoUri%" -Dpassword="%password%" -Dusername="%username%" -jar winstone-boot-1.7.0.jar --httpPort=9666 --warfile=JdAdapter.war

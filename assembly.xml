@@ -42,8 +42,9 @@
     <dependencySets>
         <dependencySet>
             <includes>
-                <include>org.jvnet.hudson.winstone:winstone</include>
+                <include>org.intelligents-ia.winstone:winstone-boot</include>
             </includes>
+            <scope>provided</scope>
         </dependencySet>
     </dependencySets>
 
