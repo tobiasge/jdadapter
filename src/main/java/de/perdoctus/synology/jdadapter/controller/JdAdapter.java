@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import de.perdoctus.synolib.DownloadRedirectorClient;
 import de.perdoctus.synolib.exceptions.LoginException;
 import de.perdoctus.synolib.exceptions.SynoException;
+import de.perdoctus.synolib.responses.AddUrlResponse;
 import de.perdoctus.synology.jdadapter.utils.Decrypter;
 
 /**
@@ -112,10 +113,19 @@ public class JdAdapter {
             final List<URI> fixedTargets = fixURIs(targets);
 
             LOG.debug("Sending download URLs to Synology NAS. Number of URIs: " + targets.size());
+            int addedTargets = 0;
             for (URI target : fixedTargets) {
-                drClient.addDownloadUrl(target);
+                AddUrlResponse response = drClient.addDownloadUrl(target);
+                if (response.isSuccess()) {
+                    resp.getWriter().append("Added URL: " + target + "<br />");
+                    resp.getWriter().flush();
+                    addedTargets++;
+                } else {
+                    resp.getWriter().append("Failed to add URL: " + target + "<br />");
+                    resp.getWriter().flush();
+                }
             }
-
+            resp.getWriter().append("Added " + addedTargets + " URL(s) to Downloadstation<br />");
             resp.setStatus(HttpServletResponse.SC_OK);
 
         } catch (ScriptException ex) {
