@@ -10,4 +10,4 @@ Requirements
 + Java Installation (minimum JRE 1.7)
 + A Synology NAS with configured DownloadStation
 
-[![Dependency Status](https://www.versioneye.com/user/projects/55323d5610e7141211001087/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55323d5610e7141211001087)
+[![Dependency Status](https://www.versioneye.com/user/projects/57d99a8b430747003e14a523/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57d99a8b430747003e14a523)
