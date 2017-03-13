@@ -23,7 +23,7 @@
 
     <groupId>de.perdoctus</groupId>
     <artifactId>jdadapter</artifactId>
-    <version>0.5.2</version>
+    <version>0.6.0</version>
     <packaging>war</packaging>
     <name>JdAdapter Web App</name>
 
@@ -100,13 +100,20 @@
         </dependency>
 
         <dependency>
-            <groupId>org.intelligents-ia.winstone</groupId>
-            <artifactId>winstone-boot</artifactId>
-            <version>1.7.0</version>
+            <groupId>org.jenkins-ci</groupId>
+            <artifactId>winstone</artifactId>
+            <version>3.4</version>
             <scope>provided</scope>
         </dependency>
 
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>repo.jenkins-ci.org</id>
+            <url>http://repo.jenkins-ci.org/public/</url>
+        </repository>
+    </repositories>
 
     <build>
         <resources>

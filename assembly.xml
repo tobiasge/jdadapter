@@ -42,7 +42,7 @@
     <dependencySets>
         <dependencySet>
             <includes>
-                <include>org.intelligents-ia.winstone:winstone-boot</include>
+                <include>org.jenkins-ci:winstone</include>
             </includes>
             <scope>provided</scope>
         </dependencySet>
