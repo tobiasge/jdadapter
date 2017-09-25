@@ -6,4 +6,4 @@ password="password"
 synoUri="https://diskstation-hostname:5001/"
 ###############################################################################
 
-java -DsynoUri="$synoUri" -Dpassword="$password" -Dusername="$username" -jar winstone-3.4.jar --httpPort=9666 --warfile=JdAdapter.war
+java -DsynoUri="$synoUri" -Dpassword="$password" -Dusername="$username" -jar winstone.jar --httpPort=9666 --warfile=JdAdapter.war
