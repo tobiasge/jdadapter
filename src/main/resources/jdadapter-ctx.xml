@@ -31,6 +31,7 @@
     <context:property-placeholder system-properties-mode="OVERRIDE" ignore-resource-not-found="true"
                                   location="classpath:settings.properties"/>
     <context:component-scan base-package="de.perdoctus.synology.jdadapter.controller"/>
+    <context:component-scan base-package="de.perdoctus.synology.jdadapter.service"/>
 
     <bean id="drClient" class="de.perdoctus.synolib.DownloadRedirectorClient">
         <property name="synoUri" value="${synoUri}"/>

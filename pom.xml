@@ -23,7 +23,7 @@
 
     <groupId>de.perdoctus</groupId>
     <artifactId>jdadapter</artifactId>
-    <version>0.6.1</version>
+    <version>0.7.0</version>
     <packaging>war</packaging>
     <name>JdAdapter Web App</name>
 
@@ -66,13 +66,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>5.0.5.RELEASE</version>
+            <version>5.0.6.RELEASE</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>5.0.5.RELEASE</version>
+            <version>5.0.6.RELEASE</version>
         </dependency>
 
         <dependency>
@@ -102,7 +102,7 @@
         <dependency>
             <groupId>org.jenkins-ci</groupId>
             <artifactId>winstone</artifactId>
-            <version>4.2</version>
+            <version>4.3</version>
             <scope>provided</scope>
         </dependency>
 

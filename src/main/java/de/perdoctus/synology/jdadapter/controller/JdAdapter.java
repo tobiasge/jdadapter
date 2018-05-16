@@ -44,10 +44,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import de.perdoctus.synolib.DownloadRedirectorClient;
-import de.perdoctus.synolib.exceptions.LoginException;
-import de.perdoctus.synolib.exceptions.SynoException;
-import de.perdoctus.synolib.responses.AddUrlResponse;
+import de.perdoctus.synology.jdadapter.service.DownloadQueue;
 import de.perdoctus.synology.jdadapter.utils.Decrypter;
 
 /**
@@ -66,10 +63,7 @@ public class JdAdapter {
     }
 
     @Autowired
-    private DownloadRedirectorClient drClient;
-
-    @Autowired
-    private String appVersion;
+    private DownloadQueue downloadQueue;
 
     @RequestMapping(value = "/jdcheck.js", method = RequestMethod.GET)
     public void returnJdScript(final HttpServletResponse resp) throws IOException {
@@ -105,44 +99,27 @@ public class JdAdapter {
 
     public void handleClassicRequest(final String jk, final String crypted, final HttpServletResponse resp)
         throws IOException {
-        LOG.debug("Configuration: " + drClient.toString());
 
         try {
-            final String key = extractKey(jk);
-            final List<URI> targets = Decrypter.decryptDownloadUri(crypted, key);
-            final List<URI> fixedTargets = fixURIs(targets);
+            String key = extractKey(jk);
+            List<URI> targets = Decrypter.decryptDownloadUri(crypted, key);
+            List<URI> fixedTargets = fixURIs(targets);
 
-            LOG.debug("Sending download URLs to Synology NAS. Number of URIs: " + targets.size());
+            LOG.debug("Sending download URLs to Download queue. Number of URIs: " + targets.size());
             int addedTargets = 0;
             for (URI target : fixedTargets) {
-                AddUrlResponse response = drClient.addDownloadUrl(target);
-                if (response.isSuccess()) {
-                    resp.getWriter().append("Added URL: " + target + "<br />");
-                    resp.getWriter().flush();
-                    addedTargets++;
-                } else {
-                    resp.getWriter().append("Failed to add URL: " + target + "<br />");
-                    resp.getWriter().flush();
-                }
+                downloadQueue.addURI(target);
+                addedTargets++;
             }
-            resp.getWriter().append("Added " + addedTargets + " URL(s) to Downloadstation<br />");
-            resp.setStatus(HttpServletResponse.SC_OK);
-
+            LOG.debug("Added " + addedTargets + " URL(s) to Download queue");
+            resp.getWriter().append("Added " + addedTargets + " URL(s) to Download queue<br />");
+            resp.setStatus(200);
         } catch (ScriptException ex) {
             LOG.error(ex.getMessage(), ex);
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Failed to evaluate script:\n" + ex.getMessage());
-
-        } catch (SynoException ex) {
-            LOG.error(ex.getMessage(), ex);
-            if (ex instanceof LoginException) {
-                resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
-            } else {
-                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
-            }
-
+            resp.sendError(400, "Failed to evaluate script:\n" + ex.getMessage());
         } catch (URISyntaxException ex) {
             LOG.error("Decrypted URL seems to be corrupt.", ex);
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
+            resp.sendError(500, ex.getMessage());
         }
     }
 
