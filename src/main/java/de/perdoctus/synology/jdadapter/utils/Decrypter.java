@@ -19,18 +19,19 @@
 
 package de.perdoctus.synology.jdadapter.utils;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import sun.misc.BASE64Decoder;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -44,8 +45,8 @@ public class Decrypter {
         IOException {
         List<URI> resultURLs = new ArrayList<URI>();
 
-        BASE64Decoder dec = new BASE64Decoder();
-        byte[] content = dec.decodeBuffer(hexContent);
+        Base64.Decoder dec = Base64.getMimeDecoder();
+        byte[] content = dec.decode(hexContent);
         byte[] key = HexFormatter.hexToByteArray(hexKey);
 
         String[] results = decrypt(content, key).split("\n");

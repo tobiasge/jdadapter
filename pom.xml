@@ -23,7 +23,7 @@
 
     <groupId>de.perdoctus</groupId>
     <artifactId>jdadapter</artifactId>
-    <version>0.8.2</version>
+    <version>0.9.0</version>
     <packaging>war</packaging>
     <name>JdAdapter Web App</name>
 
