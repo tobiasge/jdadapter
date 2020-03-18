@@ -23,7 +23,7 @@
 
     <groupId>de.perdoctus</groupId>
     <artifactId>jdadapter</artifactId>
-    <version>0.9.1</version>
+    <version>0.9.2</version>
     <packaging>war</packaging>
     <name>JdAdapter Web App</name>
 
@@ -31,26 +31,22 @@
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <app.version>${project.version}</app.version>
-        <spring.version>5.1.6.RELEASE</spring.version>
-        <log4j.version>2.11.2</log4j.version>
+        <spring.version>5.2.4.RELEASE</spring.version>
+        <log4j.version>2.13.1</log4j.version>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.7.25</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>1.7.25</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
@@ -61,7 +57,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13</version>
             <scope>test</scope>
         </dependency>
 
@@ -86,7 +82,7 @@
         <dependency>
             <groupId>de.perdoctus</groupId>
             <artifactId>synolib</artifactId>
-            <version>1.1.11</version>
+            <version>1.1.12</version>
         </dependency>
 
         <dependency>
@@ -104,7 +100,7 @@
         <dependency>
             <groupId>org.jenkins-ci</groupId>
             <artifactId>winstone</artifactId>
-            <version>5.3</version>
+            <version>5.9</version>
             <scope>provided</scope>
         </dependency>
 
